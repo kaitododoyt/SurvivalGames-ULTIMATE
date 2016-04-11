@@ -1,6 +1,6 @@
 name: SurvivalGames
 main: ImagicalDevs\SurvivalGamesID
 version: 1.0
-api: [2.0.0,1.14.0]
+api: [2.0.0, 1.14.0]
 load: POSTWORLD
 author: ImagicalDevs
