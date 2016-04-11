@@ -1,33 +1,6 @@
-name: WallSurvivalGames
-main: Ragnok123\WallSurvivalGames
+name: SurvivalGames
+main: ImagicalDevs\WallSurvivalGames
 version: 1.0
 api: 2.0.0
 load: POSTWORLD
-author: Ragnok123
-commands:
- wsg:
-  permission: wsg.command.wsg
-  description: Main command
-  usage: /wsg set, /wsg remove
- lobby:
-  permission: wsg.command.lobby
-  description: TP to lobby
-  usage: /lobby
-permissions:
- wsg.*:
-  description: Main
-  default: op
-  children:
-   wsg.command.*:
-    description: Usage
-    default: op
-    children:
-     wsg.command.lobby:
-      description: Lobby
-      default: true
-     wsg.command.wsg:
-      description: Main
-      default: op
-   wsg.touch.startgame:
-    description: Join
-    default: true
+author: ImagicalDevs
