@@ -1,5 +1,5 @@
 name: SurvivalGames
-main: ImagicalDevs\SG-U
+main: ImagicalDevs\SG-U\Main
 version: 1.0
 api: [2.0.0, 1.14.0]
 load: POSTWORLD
