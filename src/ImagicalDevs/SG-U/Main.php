@@ -3,23 +3,30 @@
 namespace ImagicalDevs\SG-U;
 
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\PluginTask;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerDeathEvent;
-use pocketmine\event\player\PlayerInteractEvent;
-use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\utils\Config;
+use pocketmine\command\CommandSender;
+use pocketmine\command\Command;
 use pocketmine\utils\TextFormat as C;
-use pocketmine\command\{Command,CommandSender};
+use pocketmine\utils\Config;
 use pocketmine\math\Vector3;
 use pocketmine\level\{Level,Position};
-use pocketmine\tile\Tile;
-use pocketmine\tile\Chest;
+use pocketmine\Player;
+use pocketmine\block\Block;
 use pocketmine\tile\Sign;
 use pocketmine\item\Item;
-use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\entity\Entity;
+use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\entity\Effect;
+use pocketmine\event\entity\EntityLevelChangeEvent; 
+use pocketmine\tile\Chest;
+use pocketmine\inventory\ChestInventory;
+use pocketmine\event\plugin\PluginEvent;
 
 class Main extends PluginBase implements Listener {
   
@@ -34,12 +41,65 @@ class Main extends PluginBase implements Listener {
     $this->msg = new Config($this->getDataFolder(). "messages.yml", Config::YAML);
     $this->config = new Config($this->getDataFolder(). "config.yml", Config::YAML);
     $this->data = new Config($this->getDataFolder(). "sgdata.yml", Config::YAML);
+    
+    $this->getServer()->getScheduler()->scheduleRepeatingTask(new SurvivalGamesGame($this), 20);
+		$this->getServer()->getScheduler()->scheduleRepeatingTask(new SignChangeEvent($this), 10);
+		
+		foreach($this->config->get("arenas") as $a){
+		  $this->getServer()->loadLevel($a);
+		}
   }
   
   public function onCommand(CommandSender $s, Command $cmd, $label, array $args){
-    switch(strtolower($cmd->getName()){
-      case "":
-      break;
+    if(strtolower($cmd->getName() == "sgu")){
+      if($s instanceof Player){
+        if(!isset($args[0])){
+          $s->sendMessage(C::RED."/sgu make <world name>");
+        }else{
+          if($args[0] == "make"){
+            if(!isset($args[1])){
+              $s->sendMessage(C::RED."/sgu make <world name>");
+            }else{
+              $world = $args[1];
+              if($world instanceof Level){
+                
+                if(!$this->config->exists("arenas")){
+                  $this->config->set("arenas", array($world));
+                }else{
+                  array_push($this->config->get("arenas",$args[1]));
+                }
+                
+                $this->getServer()->loadLevel($world);
+								$this->getServer()->getLevelByName($world)->loadChunk($this->getServer()->getLevelByName($world)->getSafeSpawn()->getFloorX(), $this->getServer()->getLevelByName($world)->getSafeSpawn()->getFloorZ());
+								$s->teleport($this->getServer()->getLevelByName($world)->getSafeSpawn());
+								$this->spawn = 1;
+								$s->sendMessage(C::BLUE."[SG-U] Get Ready To Create Dat SG-U Arena!")
+              }else{
+                $s->sendMessage(C::RED."Dude...Thats Not A Level!");
+              }
+            }
+          }
+        }
+      }else{
+        $s->sendMessage(C::BLUE."Um...Ur Not A PLAYER");
+      }
+    }
+    return true;
+  }
+  public function onInteract(PlayerInteractEvent $e){
+    $p = $e->getPlayer();
+    $l = $p->getLevel();
+    $b = $e->getBlock();
+    $sign = $l->getTile($b);
+    
+    # Continuation of Spawn Saving
+    if($this->spawn >= 1 && $this->spawn <= 24){
+      $sg = $this->data;
+      $sg->set($l . "Spawn" . $this->mode, array($b->getX(),$b->getY()+1,$b->getZ()));
+      $p->sendMessage(C::GREEN."Spawn $this->mode Added!");
+      $this->data++;
     }
   }
 }
+
+class SignChangeEvent 
