@@ -49,8 +49,33 @@ class Main extends PluginBase implements Listener {
 		  $this->getServer()->loadLevel($a);
 		}
   }
-  
-  public function onCommand(CommandSender $s, Command $cmd, $label, array $args){
+      public function playerBlockTouch(PlayerInteractEvent $event){
+        if($event->getBlock()->getID() == 323 || $event->getBlock()->getID() == 63 || $event->getBlock()->getID() == 68){
+            $sign = $event->getPlayer()->getLevel()->getTile($event->getBlock());
+            if(!($sign instanceof Sign)){
+                return;
+            }
+            $sign = $sign->getText();
+            $p = $event->getPlayer();
+            $l = $p->getLevel();
+            $b = $l->getBlock();
+            if($sign[0]=='[SpeedRun]'){
+                if($sign[1]== "join"){
+                
+                    $p->sendMessage($this->getConfig()->get("join_msg"));
+      //code will go here to join a match.
+                 }
+               }
+    # Continuation of Spawn Saving
+    if($this->spawn >= 1 && $this->spawn <= 24){
+      $sg = $this->data;
+      $sg->set($l . "Spawn" . $this->mode, array($b->getX(),$b->getY()+1,$b->getZ()));
+      $p->sendMessage(C::GREEN."Spawn $this->mode Added!");
+      $this->data++;
+    }
+         }
+      }
+public function onCommand(CommandSender $s, Command $cmd, $label, array $args){
     if(strtolower($cmd->getName() == "sgu")){
       if($s instanceof Player){
         if(!isset($args[0])){
@@ -86,20 +111,4 @@ class Main extends PluginBase implements Listener {
     }
     return true;
   }
-  public function onInteract(PlayerInteractEvent $e){
-    $p = $e->getPlayer();
-    $l = $p->getLevel();
-    $b = $e->getBlock();
-    $sign = $l->getTile($b);
-    
-    # Continuation of Spawn Saving
-    if($this->spawn >= 1 && $this->spawn <= 24){
-      $sg = $this->data;
-      $sg->set($l . "Spawn" . $this->mode, array($b->getX(),$b->getY()+1,$b->getZ()));
-      $p->sendMessage(C::GREEN."Spawn $this->mode Added!");
-      $this->data++;
-    }
-  }
-}
-
 class SignChangeEvent 
