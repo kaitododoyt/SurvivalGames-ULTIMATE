@@ -59,7 +59,7 @@ class Main extends PluginBase implements Listener {
             $p = $event->getPlayer();
             $l = $p->getLevel();
             $b = $l->getBlock();
-            if($sign[0]=='[SpeedRun]'){
+            if($sign[0]=='[SGU]'){
                 if($sign[1]== "join"){
                 
                     $p->sendMessage($this->getConfig()->get("join_msg"));
